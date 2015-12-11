@@ -4,9 +4,10 @@
   "author": "Alex Cornejo",
   "devDependencies": {
     "chai": "~1.8.1",
+    "jshint": "~2.3.0",
+    "json-schema-test-suite": "0.0.10",
     "mocha": "~1.13.0",
-    "uglify-js": "~2.4.0",
-    "jshint": "~2.3.0"
+    "uglify-js": "~2.4.0"
   },
   "dependencies": {},
   "repository": {
@@ -22,8 +23,9 @@
   ],
   "scripts": {
     "prepublish": "mkdir build; ./node_modules/.bin/uglifyjs -o build/jjv.min.js lib/jjv.js",
-    "pretest": "./node_modules/.bin/jshint -e 'js,json' ./lib ./test",
-    "test": "./node_modules/.bin/mocha -b -R spec ./test"
+    "pretest_native": "./node_modules/.bin/jshint -e 'js,json' ./lib ./test",
+    "test_native": "./node_modules/.bin/mocha -b -R spec ./test",
+    "test": "./node_modules/.bin/mocha -b -R spec scripts/test.js"
   },
   "main": "index.js"
 }
