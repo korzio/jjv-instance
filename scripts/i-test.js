@@ -8,7 +8,7 @@ var refs = {
 };
 
 var env = new jjv();
-var test = require(globalPath + '/node_modules/is-my-json-valid/test/json-schema-draft4/refRemote.json');
+var test = require('/Users/alexanderko/Sites/schema/jjv-instance/node_modules/json-schema-benchmark/JSON-Schema-Test-Suite/tests/draft4/anyOf.json');
 test = test.pop();
 
 Object.keys(refs).forEach(function (uri) {
@@ -16,5 +16,5 @@ Object.keys(refs).forEach(function (uri) {
 });
 env.addSchema('test', test.schema);
 debugger;
-var errors = env.validate('test', test.tests[0].data);
+var errors = env.validate('test', test.tests[1].data);
 debugger;
