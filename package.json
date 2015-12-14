@@ -5,6 +5,7 @@
   "devDependencies": {
     "chai": "~1.8.1",
     "jshint": "~2.3.0",
+    "json-schema-benchmark": "^1.0.2",
     "json-schema-test-suite": "0.0.10",
     "mocha": "~1.13.0",
     "uglify-js": "~2.4.0"
