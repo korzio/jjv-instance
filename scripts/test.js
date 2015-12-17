@@ -25,6 +25,13 @@ var factory = function (schema, options) {
 
         var errors = env.validate('test', json);
 
+        if(schema.lookup) {
+            console.log('---------');
+            console.log(schema, json);
+            console.log(errors);
+            console.log(JSON.stringify(env));
+        }
+
         return !errors ? { valid: true } : { valid: false, errors: [ errors ] };
       } catch (err) {
         return { valid: false, errors: [err.message] };

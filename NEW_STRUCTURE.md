@@ -7,3 +7,5 @@
 - add instantiate
 - add generate random
 - add license
+- add tests to json schema suite and json-schema-benchmark
+- change package tests runner
