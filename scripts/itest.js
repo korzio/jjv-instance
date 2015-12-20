@@ -15,61 +15,30 @@ Object.keys(refs).forEach(function (uri) {
 });
 
 var test = {
-        "description":
-            "properties, patternProperties, additionalProperties interaction",
-        "schema": {
-            "properties": {
-                "foo": {"type": "array", "maxItems": 3},
-                "bar": {"type": "array"}
-            },
-            "patternProperties": {"f.o": {"minItems": 2}},
-            "additionalProperties": {"type": "integer"}
+    "description": "not multiple types",
+    "schema": {
+        "not": {"type": ["integer", "boolean"]}
+    },
+    "tests": [
+        {
+            "description": "valid",
+            "data": "foo",
+            "valid": true
         },
-        "tests": [
-            {
-                "description": "property validates property",
-                "data": {"foo": [1, 2]},
-                "valid": true
-            },
-            {
-                "description": "property invalidates property",
-                "data": {"foo": [1, 2, 3, 4]},
-                "valid": false
-            },
-            {
-                "description": "patternProperty invalidates property",
-                "data": {"foo": []},
-                "valid": false
-            },
-            {
-                "description": "patternProperty validates nonproperty",
-                "data": {"fxo": [1, 2]},
-                "valid": true
-            },
-            {
-                "description": "patternProperty invalidates nonproperty",
-                "data": {"fxo": []},
-                "valid": false
-            },
-            {
-                "description": "additionalProperty ignores property",
-                "data": {"bar": []},
-                "valid": true
-            },
-            {
-                "description": "additionalProperty validates others",
-                "data": {"quux": 3},
-                "valid": true
-            },
-            {
-                "description": "additionalProperty invalidates others",
-                "data": {"quux": "foo"},
-                "valid": false
-            }
-        ]
-    };
+        {
+            "description": "mismatch",
+            "data": 1,
+            "valid": false
+        },
+        {
+            "description": "other mismatch",
+            "data": true,
+            "valid": false
+        }
+    ]
+};
 
 env.addSchema('test', test.schema);
 
-var errors = env.validate('test', test.tests[0].data);
+var errors = env.validate('test', test.tests[1].data);
 debugger;

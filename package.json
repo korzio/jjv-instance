@@ -26,8 +26,10 @@
     "prepublish": "mkdir build; ./node_modules/.bin/uglifyjs -o build/jjv.min.js lib/jjv.js",
     "_pretest_native": "./node_modules/.bin/jshint -e 'js,json' ./lib ./test",
     "test_native": "./node_modules/.bin/mocha -R spec ./test",
-    "test": "./node_modules/.bin/mocha -R spec -d --prof scripts/test.js",
-    "debug": "node --prof scripts/debug.js"
+    "test": "./node_modules/.bin/mocha -R spec -d scripts/test.js",
+    "testb": "NODE_ENV=.build ./node_modules/.bin/mocha -R spec -d scripts/test.js",
+    "debug": "node scripts/debug.js",
+    "build": "node scripts/build.js"
   },
   "main": "index.js"
 }
