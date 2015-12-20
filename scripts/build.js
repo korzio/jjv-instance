@@ -3,7 +3,6 @@ var fs = require('fs');
 var source = 'var utils = require(\'./utils\');\n\
 var validators = require(\'./validators\');\n\
 var keywords = require(\'./keywords\');\n\
-var validate = require(\'./validate\');\n\
 var resolve = require(\'./resolve\');\n\n\
 module.exports = function validate(env, schemaStack, objectStack, options) {';
 
