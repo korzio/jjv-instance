@@ -15,24 +15,20 @@ Object.keys(refs).forEach(function (uri) {
 });
 
 var test = {
-    "description": "not multiple types",
+    "description": "additionalItems as schema",
     "schema": {
-        "not": {"type": ["integer", "boolean"]}
+        "items": [{}],
+        "additionalItems": {"type": "integer"}
     },
     "tests": [
         {
-            "description": "valid",
-            "data": "foo",
+            "description": "additional items match schema",
+            "data": [ null, 2, 3, 4 ],
             "valid": true
         },
         {
-            "description": "mismatch",
-            "data": 1,
-            "valid": false
-        },
-        {
-            "description": "other mismatch",
-            "data": true,
+            "description": "additional items do not match schema",
+            "data": [ null, 2, 3, "foo" ],
             "valid": false
         }
     ]
@@ -40,5 +36,5 @@ var test = {
 
 env.addSchema('test', test.schema);
 
-var errors = env.validate('test', test.tests[1].data);
-debugger;
+var errors = env.validate('test', test.tests[0].data);
+console.log(errors);
