@@ -29,11 +29,11 @@ for(var i = 0, arr = [
 	var validatorStr = require(path + arr[i]).toString();
 
 	validatorStr = validatorStr.replace(FN_HEAD, '\n/** ' + arr[i] + ' **/\n');
-	if(CONDITION.test(validatorStr)){
-		validatorStr = validatorStr.replace(CONDITION, CONDITION_TO);
-	} else {
-		validatorStr = validatorStr.slice(0, -1);
-	}
+	// if(CONDITION.test(validatorStr)){
+	// 	validatorStr = validatorStr.replace(CONDITION, CONDITION_TO);
+	// } else {
+	// 	validatorStr = validatorStr.slice(0, -1);
+	// }
 
 	// validatorStr = validatorStr.replace(CONTINUE, 'continue;');
 	source += validatorStr;

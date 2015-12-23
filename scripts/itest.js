@@ -15,20 +15,42 @@ Object.keys(refs).forEach(function (uri) {
 });
 
 var test = {
-    "description": "additionalItems as schema",
-    "schema": {
-        "items": [{}],
-        "additionalItems": {"type": "integer"}
-    },
+    "description": "multiple types can be specified in an array",
+    "schema": {"type": ["integer", "string"]},
     "tests": [
         {
-            "description": "additional items match schema",
-            "data": [ null, 2, 3, 4 ],
+            "description": "an integer is valid",
+            "data": 1,
             "valid": true
         },
         {
-            "description": "additional items do not match schema",
-            "data": [ null, 2, 3, "foo" ],
+            "description": "a string is valid",
+            "data": "foo",
+            "valid": true
+        },
+        {
+            "description": "a float is invalid",
+            "data": 1.1,
+            "valid": false
+        },
+        {
+            "description": "an object is invalid",
+            "data": {},
+            "valid": false
+        },
+        {
+            "description": "an array is invalid",
+            "data": [],
+            "valid": false
+        },
+        {
+            "description": "a boolean is invalid",
+            "data": true,
+            "valid": false
+        },
+        {
+            "description": "null is invalid",
+            "data": null,
             "valid": false
         }
     ]
@@ -36,5 +58,5 @@ var test = {
 
 env.addSchema('test', test.schema);
 
-var errors = env.validate('test', test.tests[0].data);
-console.log(errors);
+var errors = env.validate('test', test.tests[1].data);
+console.log('Done, ', errors);

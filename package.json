@@ -4,11 +4,16 @@
   "author": "Alex Cornejo",
   "devDependencies": {
     "chai": "~1.8.1",
+    "fs-readdir-recursive": "^1.0.0",
+    "http-server": "^0.8.5",
     "jshint": "~2.3.0",
+    "json-loader": "^0.5.4",
     "json-schema-benchmark": "^1.0.2",
     "json-schema-test-suite": "0.0.10",
+    "measure": "^0.1.1",
     "mocha": "~1.13.0",
-    "uglify-js": "~2.4.0"
+    "uglify-js": "~2.4.0",
+    "webpack": "^1.12.9"
   },
   "dependencies": {},
   "repository": {
@@ -27,9 +32,11 @@
     "_pretest_native": "./node_modules/.bin/jshint -e 'js,json' ./lib ./test",
     "test_native": "./node_modules/.bin/mocha -R spec ./test",
     "test": "./node_modules/.bin/mocha -R spec -d scripts/test.js",
-    "testb": "NODE_ENV=.build ./node_modules/.bin/mocha -R spec -d scripts/test.js",
+    "itest": "NODE_ENV=.build ./node_modules/.bin/mocha -R spec -d scripts/test.js",
     "debug": "node scripts/debug.js",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "webpack": "webpack",
+    "server": "http-server"
   },
   "main": "index.js"
 }

@@ -19,7 +19,7 @@
 			"outDir": null
 		},
         {
-			"name": "build",
+			"name": "builded",
 			"type": "node",
 			"request": "launch",
 			"program": "./scripts/itest.js",
