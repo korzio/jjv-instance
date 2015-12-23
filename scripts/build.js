@@ -32,7 +32,7 @@ for(var i = 0, arr = [
 	// if(CONDITION.test(validatorStr)){
 	// 	validatorStr = validatorStr.replace(CONDITION, CONDITION_TO);
 	// } else {
-	// 	validatorStr = validatorStr.slice(0, -1);
+    validatorStr = validatorStr.slice(0, -1);
 	// }
 
 	// validatorStr = validatorStr.replace(CONTINUE, 'continue;');
