@@ -31,7 +31,25 @@
 				"--nolazy"
 			],
 			"env": {
-				"NODE_ENV": ".build"
+				"NODE_ENV": ".build.1"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null
+		},
+        {
+			"name": "build",
+			"type": "node",
+			"request": "launch",
+			"program": "./scripts/build.js",
+			"stopOnEntry": false,
+			"args": [],
+			"cwd": ".",
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
 			},
 			"externalConsole": false,
 			"sourceMaps": false,

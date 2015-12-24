@@ -14,43 +14,64 @@ Object.keys(refs).forEach(function (uri) {
 	env.addSchema(uri, refs[uri]);
 });
 
-var test = {
-    "description": "multiple types can be specified in an array",
-    "schema": {"type": ["integer", "string"]},
+var test = [
+    {
+        "description": "required validation",
+        "schema": {
+            "properties": {
+                "foo": {},
+                "bar": {}
+            },
+            "required": ["foo"]
+        },
+        "tests": [
+            {
+                "description": "present required property is valid",
+                "data": {"foo": 1},
+                "valid": true
+            },
+            {
+                "description": "non-present required property is invalid",
+                "data": {"bar": 1},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "required default validation",
+        "schema": {
+            "properties": {
+                "foo": {}
+            }
+        },
+        "tests": [
+            {
+                "description": "not required by default",
+                "data": {},
+                "valid": true
+            }
+        ]
+    }
+];
+
+test = {
+    "description": "required validation",
+    "schema": {
+        "properties": {
+            "foo": {},
+            "bar": {}
+        },
+        "required": ["foo"]
+    },
     "tests": [
         {
-            "description": "an integer is valid",
-            "data": 1,
+            "description": "present required property is valid",
+            "data": {"foo": 1},
             "valid": true
         },
         {
-            "description": "a string is valid",
-            "data": "foo",
-            "valid": true
-        },
-        {
-            "description": "a float is invalid",
-            "data": 1.1,
-            "valid": false
-        },
-        {
-            "description": "an object is invalid",
-            "data": {},
-            "valid": false
-        },
-        {
-            "description": "an array is invalid",
-            "data": [],
-            "valid": false
-        },
-        {
-            "description": "a boolean is invalid",
-            "data": true,
-            "valid": false
-        },
-        {
-            "description": "null is invalid",
-            "data": null,
+            "description": "non-present required property is invalid",
+            "data": {"bar": 1},
             "valid": false
         }
     ]

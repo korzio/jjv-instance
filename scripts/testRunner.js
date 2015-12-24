@@ -23,18 +23,15 @@ var config = {
 };
 
 tests.map(function(suite){
-    console.log(suite.description);
-
     suite.tests.map(function(test){
-        console.log(test.description);
-
         var env = config.setup();
         env.addSchema('test', suite.schema);
 
         var errors = env.validate('test', test.data);
         if(test.valid == errors) {
+            console.log(suite.description);
+            console.log(test.description);
             console.warn('wrong', errors);
         }
     });
-
 });

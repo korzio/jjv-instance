@@ -5,6 +5,7 @@
   "devDependencies": {
     "chai": "~1.8.1",
     "fs-readdir-recursive": "^1.0.0",
+    "generate-function": "^2.0.0",
     "http-server": "^0.8.5",
     "jshint": "~2.3.0",
     "json-loader": "^0.5.4",

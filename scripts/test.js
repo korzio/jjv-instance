@@ -171,6 +171,7 @@ function runTests(factory, draft, validatorResult) {
                                 }
 
                                 if(result.valid !== testCase.valid) {
+                                    console.log(JSON.stringify(schema.schema, 4));
                                     console.log(JSON.stringify(testCase, 4));
                                 }
 

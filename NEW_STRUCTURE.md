@@ -1,5 +1,6 @@
 # TODO
 
+- compile/optimize json schema structure itself
 - remove clone
 - split properties
 - [add compile step](http://ejohn.org/blog/asmjs-javascript-compile-target/)

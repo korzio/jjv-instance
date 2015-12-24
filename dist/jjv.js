@@ -55,10 +55,10 @@
 	var jjv = __webpack_require__(3);
 
 	var refs = {
-		'http://localhost:1234/integer.json': __webpack_require__(9),
-		'http://localhost:1234/subSchemas.json': __webpack_require__(10),
-		'http://localhost:1234/folder/folderInteger.json': __webpack_require__(11),
-		'http://json-schema.org/draft-04/schema': __webpack_require__(12)
+		'http://localhost:1234/integer.json': __webpack_require__(24),
+		'http://localhost:1234/subSchemas.json': __webpack_require__(25),
+		'http://localhost:1234/folder/folderInteger.json': __webpack_require__(26),
+		'http://json-schema.org/draft-04/schema': __webpack_require__(27)
 	};
 
 	var config = {
@@ -76,20 +76,17 @@
 	};
 
 	tests.map(function(suite){
-	    console.log(suite.description);
-
 	    suite.tests.map(function(test){
-	        console.log(test.description);
-
 	        var env = config.setup();
 	        env.addSchema('test', suite.schema);
 
 	        var errors = env.validate('test', test.data);
 	        if(test.valid == errors) {
+	            console.log(suite.description);
+	            console.log(test.description);
 	            console.warn('wrong', errors);
 	        }
 	    });
-
 	});
 
 /***/ },
@@ -3027,8 +3024,8 @@
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;var utils = __webpack_require__(4);
 	var validators = __webpack_require__(5);
-	var validate = __webpack_require__(31)("./validate" + (typeof process !== 'undefined' && process.env.NODE_ENV || ''));
-	var resolve = __webpack_require__(8);
+	var validate = __webpack_require__(6)("./validate" + (typeof process !== 'undefined' && process.env.NODE_ENV || ''));
+	var resolve = __webpack_require__(10);
 
 	(function () {
 	    var defaultOptions = {
@@ -3447,345 +3444,126 @@
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var utils = __webpack_require__(4);
-	var validators = __webpack_require__(5);
-	var keywords = __webpack_require__(7);
-	var resolve = __webpack_require__(8);
+	var map = {
+		"./validate": 7,
+		"./validate.build": 23,
+		"./validate.build.1": 28,
+		"./validate.build.1.js": 28,
+		"./validate.build.js": 23,
+		"./validate.gen.build": 29,
+		"./validate.gen.build.js": 29,
+		"./validate.js": 7
+	};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 6;
 
-	module.exports = function validate(env, schemaStack, objectStack, options) {
-	    var args = [[schemaStack, objectStack, {}]], valid;
-
-	    global: while (args.length) {
-	        schemaStack = args[args.length - 1][0];
-	        objectStack = args[args.length - 1][1];
-	        valid = args[args.length - 1][2];
-
-	        /** $ref **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!valid.$ref && !(!schema.hasOwnProperty('$ref'))) {
-
-	            var newSchemaStack = resolve(env, schemaStack, schema.$ref);
-	            if (!newSchemaStack) {
-	                return { '$ref': schema.$ref };
-	            }
-
-	            valid.$ref = true;
-	            args.push([newSchemaStack, objectStack, {}]);
-
-	            continue;
-	        }
-	        /** type **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!(!schema.hasOwnProperty('type'))) {
-
-	            var prop = objectStack[objectStack.length - 1];
-
-	            if (typeof schema.type === 'string') {
-	                if (options.useCoerce && env.coerceType.hasOwnProperty(schema.type)) {
-	                    prop = env.coerceType[schema.type](prop);
-	                }
-	                if (!env.fieldType[schema.type](prop)) {
-	                    return { 'type': schema.type };
-	                }
-	            } else if (Array.isArray(schema.type)) {
-	                for (var i = 0, len = schema.type.length; i < len; i++) {
-	                    if (env.fieldType[schema.type[i]](prop)) {
-	                        args.pop();
-	                        continue global;
-	                    }
-	                }
-
-	                return { 'type': schema.type };
-	            }
-	        }
-	        /** allOf **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!valid.allOf && !(!schema.hasOwnProperty('allOf'))) {
-	            valid.allOf = true;
-	            for (var i = 0, len = schema.allOf.length; i < len; i++) {
-	                args.push([schemaStack.concat(schema.allOf[i]), objectStack, {}]);
-	            }
-	            continue;
-	        }
-	        /** oneOf **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!(!schema.hasOwnProperty('oneOf'))) {
-
-	            var errors,
-	                newStack = objectStack,
-	                customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
-
-	            for (var i = 0, len = schema.oneOf.length, count = 0; i < len; i++) {
-	                if (customTypesUsage) {
-	                    newStack = utils.clone(objectStack);
-	                }
-
-	                errors = validate(env, schemaStack.concat(schema.oneOf[i]), newStack, options);
-	                if (!errors) {
-	                    if (++count > 1) {
-	                        break;
-	                    } else if (customTypesUsage) {
-	                        utils.copyStack(newStack, objectStack);
-	                    }
-	                }
-	            }
-
-	            if (count > 1) {
-	                return { 'oneOf': true };
-	            } else if (count < 1) {
-	                return errors;
-	            }
-	        }
-	        /** anyOf **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!(!schema.hasOwnProperty('anyOf'))) {
-
-	            var errors,
-	                newStack = objectStack,
-	                customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
-
-	            for (var i = 0, len = schema.anyOf.length; i < len; i++) {
-	                if (customTypesUsage) {
-	                    newStack = utils.clone(objectStack);
-	                }
-
-	                errors = validate(env, schemaStack.concat(schema.anyOf[i]), newStack, options);
-	                if (!errors) {
-	                    break;
-	                }
-	            }
-
-	            if (errors) {
-	                return errors;
-	            }
-	        }
-	        /** not **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!(!schema.hasOwnProperty('not'))) {
-
-	            var customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional,
-	                newStack = customTypesUsage ? utils.clone(objectStack) : objectStack,
-	                errors = validate(env, schemaStack.concat(schema.not), newStack, options);
-
-	            if (!errors) {
-	                return { 'not': true };
-	            }
-	        }
-	        /** dependencies **/
-
-	        var schema = schemaStack[schemaStack.length - 1];
-	        if (!valid.dependencies && !(!schema.hasOwnProperty('dependencies'))) {
-
-	            valid.dependencies = true;
-	            var prop = objectStack[objectStack.length - 1],
-	                toContinue;
-
-	            for (var p in schema.dependencies) {
-	                if (schema.dependencies.hasOwnProperty(p) && prop.hasOwnProperty(p)) {
-	                    if (Array.isArray(schema.dependencies[p])) {
-	                        for (var i = 0, len = schema.dependencies[p].length; i < len; i++)
-	                            if (!prop.hasOwnProperty(schema.dependencies[p][i])) {
-	                                return { 'dependencies': true };
-	                            }
-	                    } else {
-	                        toContinue = true;
-	                        args.push([schemaStack.concat(schema.dependencies[p]), objectStack, {}]);
-	                    }
-	                }
-	            }
-
-	            if(toContinue) {
-	                continue;
-	            }
-	        }
-	        /** required **/
-
-	        var schema = schemaStack[schemaStack.length - 1],
-	            prop = objectStack[objectStack.length - 1];
-
-	        if (!(!options.checkRequired || !schema.required || Array.isArray(prop))) {
-
-	            for (var i = 0, len = schema.required.length; i < len; i++) {
-	                if (!prop.hasOwnProperty(schema.required[i])) {
-	                    var errors = {};
-	                    errors[schema.required[i]] = { 'required': true };
-	                    return errors;
-	                }
-	            }
-	        }
-	        /** properties **/
-
-	        var prop = objectStack[objectStack.length - 1],
-	            schema = schemaStack[schemaStack.length - 1],
-	            hasProp = schema.hasOwnProperty('properties'),
-	            hasPattern = schema.hasOwnProperty('patternProperties');
-
-	        if (!(!prop || Array.isArray(prop))) {
-
-	            var props = Object.keys(prop),
-	                errors = {}, objerr, matched, i, len, p;
-
-	            if (hasProp || hasPattern) {
-	                i = props.length;
-	                while (i--) {
-	                    matched = false;
-	                    if (hasProp && schema.properties.hasOwnProperty(props[i])) {
-	                        matched = true;
-	                        objerr = validate(env, schemaStack.concat(schema.properties[props[i]]), objectStack.concat([prop[props[i]]]), options);
-	                        if (objerr) {
-	                            errors[props[i]] = objerr;
-	                            return errors;
-	                        }
-	                    }
-	                    if (hasPattern) {
-	                        for (p in schema.patternProperties)
-	                            if (schema.patternProperties.hasOwnProperty(p) && props[i].match(p)) {
-	                                matched = true;
-	                                objerr = validate(env, schemaStack.concat(schema.patternProperties[p]), objectStack.concat([prop[props[i]]]), options);
-	                                if (objerr) {
-	                                    errors[props[i]] = objerr;
-	                                    return errors;
-	                                }
-	                            }
-	                    }
-	                    if (matched)
-	                        props.splice(i, 1);
-	                }
-	            }
-
-	            if (options.useDefault && hasProp) {
-	                for (p in schema.properties)
-	                    if (schema.properties.hasOwnProperty(p) && !prop.hasOwnProperty(p) && schema.properties[p].hasOwnProperty('default'))
-	                        prop[p] = utils.clone(schema.properties[p]['default']);
-	            }
-
-	            if (options.removeAdditional && hasProp && schema.additionalProperties !== true && typeof schema.additionalProperties !== 'object') {
-	                for (i = 0, len = props.length; i < len; i++)
-	                    delete prop[props[i]];
-	            } else {
-	                if (schema.hasOwnProperty('additionalProperties')) {
-	                    if (typeof schema.additionalProperties === 'boolean') {
-	                        if (!schema.additionalProperties) {
-	                            for (i = 0, len = props.length; i < len; i++) {
-	                                errors[props[i]] = { 'additional': true };
-	                                return errors;
-	                            }
-	                        }
-	                    } else if(!valid.additionalProperties){
-	                        for (i = 0, len = props.length; i < len; i++) {
-	                            args.push([schemaStack.concat(schema.additionalProperties), objectStack.concat([prop[props[i]]]), {}]);
-	                        }
-
-	                        valid.additionalProperties = true;
-	                        continue;
-	                    }
-	                }
-	            }
-	        }
-	        /** items **/
-
-	        var schema = schemaStack[schemaStack.length - 1],
-	            prop = objectStack[objectStack.length - 1],
-	            errors, i, len;
-
-	        if (!valid.items && !(!Array.isArray(prop) || !schema.hasOwnProperty('items'))) {
-	            valid.items = true;
-
-	            if (Array.isArray(schema.items)) {
-	                for (i = 0, len = schema.items.length; i < len; i++) {
-	                    args.push([schemaStack.concat(schema.items[i]), objectStack.concat(prop[i]), {}]);
-	                }
-
-	                if (prop.length > len && schema.hasOwnProperty('additionalItems')) {
-	                    if (typeof schema.additionalItems === 'boolean') {
-	                        if (!schema.additionalItems) {
-	                            return { 'additionalItems': true };
-	                        }
-	                    } else {
-	                        args.push([schemaStack.concat(schema.additionalItems), objectStack.concat(prop), {}]);
-	                    }
-	                }
-	            } else {
-	                args.push([schemaStack.concat(schema.items), objectStack.concat(prop), {}])
-	            }
-
-	            continue;
-	        }
-	        /** additionalItems **/
-
-	        var schema = schemaStack[schemaStack.length - 1],
-	            prop = objectStack[objectStack.length - 1];
-
-	        if (!valid.additionalItems && !(!schema.additionalItems || Array.isArray(prop) || typeof schema.additionalItems === 'boolean')) {
-	            valid.additionalItems = true;
-	            args.push([schemaStack.concat(schema.additionalItems), objectStack.concat(prop), {}]);
-	            continue;
-	        }
-	        /** property **/
-
-	        var prop = objectStack[objectStack.length - 1],
-	            schema = schemaStack[schemaStack.length - 1],
-	            errors = {};
-
-	        for (var v in schema) {
-	            if (schema.hasOwnProperty(v) && !keywords.hasOwnProperty(v)) {
-	                if (v === 'format') {
-	                    if (env.fieldFormat.hasOwnProperty(schema[v]) && !env.fieldFormat[schema[v]](prop, schema, objectStack, options)) {
-	                        errors[v] = true;
-	                        return errors;
-	                    }
-	                } else {
-	                    var useSchemaStack = schema[v].hasOwnProperty('$data') ? utils.resolveObjectRef(objectStack, schema[v].$data) : schema[v];
-
-	                    if (env.fieldValidate.hasOwnProperty(v) && !env.fieldValidate[v](prop, useSchemaStack, schema, objectStack, options)) {
-	                        errors[v] = true;
-	                        return errors;
-	                    }
-	                }
-	            }
-	        }
-
-	        /** finish **/
-	        args.pop();
-	    }
-	}
 
 /***/ },
 /* 7 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = [
-		"type",
-		"not",
-		"anyOf",
-		"allOf",
-		"oneOf",
-		"$ref",
-		"$schema",
-		"id",
-		"exclusiveMaximum",
-		"exclusiveMininum",
-		"properties",
-		"patternProperties",
-		"additionalProperties",
-		"items",
-		"additionalItems",
-		"required",
-		"default",
-		"title",
-		"description",
-		"definitions",
-		"dependencies"
-	];
+	module.exports = function(env, schemaStack, objectStack, options) {
+		for(var i = 0, arr = [
+			'required',
+	        'property',
+	        'type',
+
+	        '$ref',
+	        'not',
+	        'anyOf',
+	        'oneOf',
+	        'allOf',
+	        'dependencies',
+
+	        'properties',
+	        'items',
+	        'additionalItems'
+		], len = arr.length; i < len; i++) {
+			var error = __webpack_require__(8)("./" + arr[i])(env, schemaStack, objectStack, options);
+			if(error) {
+				return error;
+			}
+		}
+	};
 
 /***/ },
 /* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var map = {
+		"./$ref": 9,
+		"./$ref.js": 9,
+		"./additionalItems": 11,
+		"./additionalItems.js": 11,
+		"./allOf": 12,
+		"./allOf.js": 12,
+		"./anyOf": 13,
+		"./anyOf.js": 13,
+		"./dependencies": 14,
+		"./dependencies.js": 14,
+		"./items": 15,
+		"./items.js": 15,
+		"./not": 16,
+		"./not.js": 16,
+		"./oneOf": 17,
+		"./oneOf.js": 17,
+		"./properties": 18,
+		"./properties.js": 18,
+		"./property": 19,
+		"./property.js": 19,
+		"./required": 21,
+		"./required.js": 21,
+		"./type": 22,
+		"./type.js": 22
+	};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 8;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var resolve = __webpack_require__(10);
+
+	module.exports = function $ref(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('$ref')) {/*r-condition*/
+	        var newSchemaStack = resolve(env, schemaStack, schema.$ref);
+	        if (!newSchemaStack) {
+	            return { '$ref': schema.$ref };
+	        }
+
+	        var errors = validate(env, newSchemaStack, objectStack, options);
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+	};
+
+/***/ },
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = function resolveURI(env, schemaStack, uri) {
@@ -3794,7 +3572,7 @@
 		hashIdx = uri.indexOf('#');
 		if (hashIdx === -1) {
 			if (!env.schema.hasOwnProperty(uri)) {
-				uri = schemaStack.slice(0, -1).map(function(stack){ return stack.id }).join('') + uri;
+	            uri = schemaStack.slice(0, -1).map(function(stack){ return stack.id }).join('') + uri;
 			}
 
 			if (!env.schema.hasOwnProperty(uri)) {
@@ -3851,7 +3629,693 @@
 	};
 
 /***/ },
-/* 9 */
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+
+	module.exports = function additionalItems(env, schemaStack, objectStack, options) {
+		var schema = schemaStack[schemaStack.length - 1],
+			prop = objectStack[objectStack.length - 1];
+
+		if (schema.additionalItems && Array.isArray(prop) && typeof schema.additionalItems !== 'boolean') {/*r-condition*/
+	        var errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+
+	module.exports = function allOf(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+
+	    if (schema.hasOwnProperty('allOf')) {/*r-condition*/
+	        for (var i = 0, len = schema.allOf.length; i < len; i++) {
+	            var errors = validate(env, schemaStack.concat(schema.allOf[i]), objectStack, options);
+	            if (errors) {
+	                return errors;
+	            }
+	        }
+	    }
+	};
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function anyOf(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('anyOf')) {/*r-condition*/
+	        var errors,
+	            newStack = objectStack,
+	            customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
+
+	        for (var i = 0, len = schema.anyOf.length; i < len; i++) {
+	            if (customTypesUsage) {
+	                newStack = utils.clone(objectStack);
+	            }
+
+	            errors = validate(env, schemaStack.concat(schema.anyOf[i]), newStack, options);
+	            if (!errors) {
+	                break;
+	            }
+	        }
+
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+	};
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function dependencies(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('dependencies')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        for (var p in schema.dependencies) {
+	            if (schema.dependencies.hasOwnProperty(p) && prop.hasOwnProperty(p)) {
+	                if (Array.isArray(schema.dependencies[p])) {
+	                    for (var i = 0, len = schema.dependencies[p].length; i < len; i++)
+	                        if (!prop.hasOwnProperty(schema.dependencies[p][i])) {
+	                            return { 'dependencies': true };
+	                        }
+	                } else {
+	                    var errors = validate(env, schemaStack.concat(schema.dependencies[p]), objectStack, options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	};
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+
+	module.exports = function items(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1],
+	        errors, i, len;
+
+	    if (Array.isArray(prop) && schema.hasOwnProperty('items')) {/*r-condition*/
+	        if (Array.isArray(schema.items)) {
+	            for (i = 0, len = schema.items.length; i < len; i++) {
+	                errors = validate(env, schemaStack.concat(schema.items[i]), objectStack.concat(prop[i]), options);
+	                if (errors) {
+	                    return errors;
+	                }
+	            }
+
+	            if (prop.length > len && schema.hasOwnProperty('additionalItems')) {
+	                if (typeof schema.additionalItems === 'boolean') {
+	                    if (!schema.additionalItems) {
+	                        return { 'additionalItems': true };
+	                    }
+	                } else {
+	                    errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        } else {
+	            errors = validate(env, schemaStack.concat(schema.items), objectStack.concat(prop), options);
+	            if (errors) {
+	                return errors;
+	            }
+	        }
+	    }
+	};
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function not(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('not')) {/*r-condition*/
+	        var customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional,
+	            newStack = customTypesUsage ? utils.clone(objectStack) : objectStack,
+	            errors = validate(env, schemaStack.concat(schema.not), newStack, options);
+
+	        if (!errors) {
+	            return { 'not': true };
+	        }
+	    }
+	};
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function oneOf(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('oneOf')) {/*r-condition*/
+	        var errors,
+	            newStack = objectStack,
+	            customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
+
+	        for (var i = 0, len = schema.oneOf.length, count = 0; i < len; i++) {
+	            if (customTypesUsage) {
+	                newStack = utils.clone(objectStack);
+	            }
+
+	            errors = validate(env, schemaStack.concat(schema.oneOf[i]), newStack, options);
+	            if (!errors) {
+	                if (++count > 1) {
+	                    break;
+	                } else if (customTypesUsage) {
+	                    utils.copyStack(newStack, objectStack);
+	                }
+	            }
+	        }
+
+	        if (count > 1) {
+	            return { 'oneOf': true };
+	        } else if (count < 1) {
+	            return errors;
+	        }
+	    }
+	};
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function properties(env, schemaStack, objectStack, options) {
+	    var prop = objectStack[objectStack.length - 1],
+	        schema = schemaStack[schemaStack.length - 1],
+	        hasProp = schema.hasOwnProperty('properties'),
+	        hasPattern = schema.hasOwnProperty('patternProperties');
+
+	    if (prop && !Array.isArray(prop)) {/*r-condition*/
+	        var props = Object.keys(prop),
+	            errors = {}, objerr, matched, i, len, p;
+
+	        if (hasProp || hasPattern) {
+	            i = props.length;
+	            while (i--) {
+	                matched = false;
+	                if (hasProp && schema.properties.hasOwnProperty(props[i])) {
+	                    matched = true;
+	                    objerr = validate(env, schemaStack.concat(schema.properties[props[i]]), objectStack.concat([prop[props[i]]]), options);
+	                    if (objerr) {
+	                        errors[props[i]] = objerr;
+	                        return errors;
+	                    }
+	                }
+	                if (hasPattern) {
+	                    for (p in schema.patternProperties)
+	                        if (schema.patternProperties.hasOwnProperty(p) && props[i].match(p)) {
+	                            matched = true;
+	                            objerr = validate(env, schemaStack.concat(schema.patternProperties[p]), objectStack.concat([prop[props[i]]]), options);
+	                            if (objerr) {
+	                                errors[props[i]] = objerr;
+	                                return errors;
+	                            }
+	                        }
+	                }
+	                if (matched)
+	                    props.splice(i, 1);
+	            }
+	        }
+
+	        if (options.useDefault && hasProp) {
+	            for (p in schema.properties)
+	                if (schema.properties.hasOwnProperty(p) && !prop.hasOwnProperty(p) && schema.properties[p].hasOwnProperty('default'))
+	                    prop[p] = utils.clone(schema.properties[p]['default']);
+	        }
+
+	        if (options.removeAdditional && hasProp && schema.additionalProperties !== true && typeof schema.additionalProperties !== 'object') {
+	            for (i = 0, len = props.length; i < len; i++)
+	                delete prop[props[i]];
+	        } else {
+	            if (schema.hasOwnProperty('additionalProperties')) {
+	                if (typeof schema.additionalProperties === 'boolean') {
+	                    if (!schema.additionalProperties) {
+	                        for (i = 0, len = props.length; i < len; i++) {
+	                            errors[props[i]] = { 'additional': true };
+	                            return errors;
+	                        }
+	                    }
+	                } else {
+	                    for (i = 0, len = props.length; i < len; i++) {
+	                        objerr = validate(env, schemaStack.concat(schema.additionalProperties), objectStack.concat([prop[props[i]]]), options);
+	                        if (objerr) {
+	                            errors[props[i]] = objerr;
+	                            return errors;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	};
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var keywords = __webpack_require__(20);
+	var validate = __webpack_require__(7);
+	var utils = __webpack_require__(4);
+
+	module.exports = function property(env, schemaStack, objectStack, options) {
+		var prop = objectStack[objectStack.length - 1],
+			schema = schemaStack[schemaStack.length - 1],
+			errors = {};
+
+		for (var v in schema) {
+			if (schema.hasOwnProperty(v) && !keywords.hasOwnProperty(v)) {
+				if (v === 'format') {
+					if (env.fieldFormat.hasOwnProperty(schema[v]) && !env.fieldFormat[schema[v]](prop, schema, objectStack, options)) {
+						errors[v] = true;
+						return errors;
+					}
+				} else {
+					var useSchemaStack = schema[v].hasOwnProperty('$data') ? utils.resolveObjectRef(objectStack, schema[v].$data) : schema[v];
+
+					if (env.fieldValidate.hasOwnProperty(v) && !env.fieldValidate[v](prop, useSchemaStack, schema, objectStack, options)) {
+						errors[v] = true;
+						return errors;
+					}
+				}
+			}
+		}
+	};
+
+/***/ },
+/* 20 */
+/***/ function(module, exports) {
+
+	module.exports = [
+		"type",
+		"not",
+		"anyOf",
+		"allOf",
+		"oneOf",
+		"$ref",
+		"$schema",
+		"id",
+		"exclusiveMaximum",
+		"exclusiveMininum",
+		"properties",
+		"patternProperties",
+		"additionalProperties",
+		"items",
+		"additionalItems",
+		"required",
+		"default",
+		"title",
+		"description",
+		"definitions",
+		"dependencies"
+	];
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	module.exports = function required(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1];
+
+	    if (options.checkRequired && schema.required && !Array.isArray(prop)) {/*r-condition*/
+	        for (var i = 0, len = schema.required.length; i < len; i++) {
+	            if (!prop.hasOwnProperty(schema.required[i])) {
+	                var errors = {};
+	                errors[schema.required[i]] = { 'required': true };
+	                return errors;
+	            }
+	        }
+	    }
+	};
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	module.exports = function type(env, schemaStack, objectStack, options) {
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('type')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        if (typeof schema.type === 'string') {
+	            if (options.useCoerce && env.coerceType.hasOwnProperty(schema.type)) {
+	                prop = env.coerceType[schema.type](prop);
+	            }
+	            if (!env.fieldType[schema.type](prop)) {
+	                return { 'type': schema.type };
+	            }
+	        } else if (Array.isArray(schema.type)) {
+	            for (var i = 0, len = schema.type.length; i < len; i++) {
+	                if (env.fieldType[schema.type[i]](prop)) {
+	                    return;/*r-continue*/
+	                }
+	            }
+
+	            return { 'type': schema.type };
+	        }
+	    }
+	};
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var utils = __webpack_require__(4);
+	var validators = __webpack_require__(5);
+	var keywords = __webpack_require__(20);
+	var resolve = __webpack_require__(10);
+
+	module.exports = function validate(env, schemaStack, objectStack, options) {
+	    /** required **/
+
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1];
+
+	    if (options.checkRequired && schema.required && !Array.isArray(prop)) {/*r-condition*/
+	        for (var i = 0, len = schema.required.length; i < len; i++) {
+	            if (!prop.hasOwnProperty(schema.required[i])) {
+	                var errors = {};
+	                errors[schema.required[i]] = { 'required': true };
+	                return errors;
+	            }
+	        }
+	    }
+
+
+	    /** property **/
+
+	    var prop = objectStack[objectStack.length - 1],
+	        schema = schemaStack[schemaStack.length - 1],
+	        errors = {};
+
+	    for (var v in schema) {
+	        if (schema.hasOwnProperty(v) && !keywords.hasOwnProperty(v)) {
+	            if (v === 'format') {
+	                if (env.fieldFormat.hasOwnProperty(schema[v]) && !env.fieldFormat[schema[v]](prop, schema, objectStack, options)) {
+	                    errors[v] = true;
+	                    return errors;
+	                }
+	            } else {
+	                var useSchemaStack = schema[v].hasOwnProperty('$data') ? utils.resolveObjectRef(objectStack, schema[v].$data) : schema[v];
+
+	                if (env.fieldValidate.hasOwnProperty(v) && !env.fieldValidate[v](prop, useSchemaStack, schema, objectStack, options)) {
+	                    errors[v] = true;
+	                    return errors;
+	                }
+	            }
+	        }
+	    }
+
+	    /** type **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('type')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        if (typeof schema.type === 'string') {
+	            if (options.useCoerce && env.coerceType.hasOwnProperty(schema.type)) {
+	                prop = env.coerceType[schema.type](prop);
+	            }
+	            if (!env.fieldType[schema.type](prop)) {
+	                return { 'type': schema.type };
+	            }
+	        } else if (Array.isArray(schema.type)) {
+	            for (var i = 0, len = schema.type.length; i < len; i++) {
+	                if (env.fieldType[schema.type[i]](prop)) {
+	                    return;/*r-continue*/
+	                }
+	            }
+
+	            return { 'type': schema.type };
+	        }
+	    }
+
+	    /** $ref **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('$ref')) {/*r-condition*/
+	        var newSchemaStack = resolve(env, schemaStack, schema.$ref);
+	        if (!newSchemaStack) {
+	            return { '$ref': schema.$ref };
+	        }
+
+	        var errors = validate(env, newSchemaStack, objectStack, options);
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+
+	    /** not **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('not')) {/*r-condition*/
+	        var customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional,
+	            newStack = customTypesUsage ? utils.clone(objectStack) : objectStack,
+	            errors = validate(env, schemaStack.concat(schema.not), newStack, options);
+
+	        if (!errors) {
+	            return { 'not': true };
+	        }
+	    }
+
+	    /** anyOf **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('anyOf')) {/*r-condition*/
+	        var errors,
+	            newStack = objectStack,
+	            customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
+
+	        for (var i = 0, len = schema.anyOf.length; i < len; i++) {
+	            if (customTypesUsage) {
+	                newStack = utils.clone(objectStack);
+	            }
+
+	            errors = validate(env, schemaStack.concat(schema.anyOf[i]), newStack, options);
+	            if (!errors) {
+	                break;
+	            }
+	        }
+
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+
+	    /** oneOf **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('oneOf')) {/*r-condition*/
+	        var errors,
+	            newStack = objectStack,
+	            customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional;
+
+	        for (var i = 0, len = schema.oneOf.length, count = 0; i < len; i++) {
+	            if (customTypesUsage) {
+	                newStack = utils.clone(objectStack);
+	            }
+
+	            errors = validate(env, schemaStack.concat(schema.oneOf[i]), newStack, options);
+	            if (!errors) {
+	                if (++count > 1) {
+	                    break;
+	                } else if (customTypesUsage) {
+	                    utils.copyStack(newStack, objectStack);
+	                }
+	            }
+	        }
+
+	        if (count > 1) {
+	            return { 'oneOf': true };
+	        } else if (count < 1) {
+	            return errors;
+	        }
+	    }
+
+	    /** allOf **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+
+	    if (schema.hasOwnProperty('allOf')) {/*r-condition*/
+	        for (var i = 0, len = schema.allOf.length; i < len; i++) {
+	            var errors = validate(env, schemaStack.concat(schema.allOf[i]), objectStack, options);
+	            if (errors) {
+	                return errors;
+	            }
+	        }
+	    }
+
+	    /** dependencies **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('dependencies')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        for (var p in schema.dependencies) {
+	            if (schema.dependencies.hasOwnProperty(p) && prop.hasOwnProperty(p)) {
+	                if (Array.isArray(schema.dependencies[p])) {
+	                    for (var i = 0, len = schema.dependencies[p].length; i < len; i++)
+	                        if (!prop.hasOwnProperty(schema.dependencies[p][i])) {
+	                            return { 'dependencies': true };
+	                        }
+	                } else {
+	                    var errors = validate(env, schemaStack.concat(schema.dependencies[p]), objectStack, options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    /** properties **/
+
+	    var prop = objectStack[objectStack.length - 1],
+	        schema = schemaStack[schemaStack.length - 1],
+	        hasProp = schema.hasOwnProperty('properties'),
+	        hasPattern = schema.hasOwnProperty('patternProperties');
+
+	    if (prop && !Array.isArray(prop)) {/*r-condition*/
+	        var props = Object.keys(prop),
+	            errors = {}, objerr, matched, i, len, p;
+
+	        if (hasProp || hasPattern) {
+	            i = props.length;
+	            while (i--) {
+	                matched = false;
+	                if (hasProp && schema.properties.hasOwnProperty(props[i])) {
+	                    matched = true;
+	                    objerr = validate(env, schemaStack.concat(schema.properties[props[i]]), objectStack.concat([prop[props[i]]]), options);
+	                    if (objerr) {
+	                        errors[props[i]] = objerr;
+	                        return errors;
+	                    }
+	                }
+	                if (hasPattern) {
+	                    for (p in schema.patternProperties)
+	                        if (schema.patternProperties.hasOwnProperty(p) && props[i].match(p)) {
+	                            matched = true;
+	                            objerr = validate(env, schemaStack.concat(schema.patternProperties[p]), objectStack.concat([prop[props[i]]]), options);
+	                            if (objerr) {
+	                                errors[props[i]] = objerr;
+	                                return errors;
+	                            }
+	                        }
+	                }
+	                if (matched)
+	                    props.splice(i, 1);
+	            }
+	        }
+
+	        if (options.useDefault && hasProp) {
+	            for (p in schema.properties)
+	                if (schema.properties.hasOwnProperty(p) && !prop.hasOwnProperty(p) && schema.properties[p].hasOwnProperty('default'))
+	                    prop[p] = utils.clone(schema.properties[p]['default']);
+	        }
+
+	        if (options.removeAdditional && hasProp && schema.additionalProperties !== true && typeof schema.additionalProperties !== 'object') {
+	            for (i = 0, len = props.length; i < len; i++)
+	                delete prop[props[i]];
+	        } else {
+	            if (schema.hasOwnProperty('additionalProperties')) {
+	                if (typeof schema.additionalProperties === 'boolean') {
+	                    if (!schema.additionalProperties) {
+	                        for (i = 0, len = props.length; i < len; i++) {
+	                            errors[props[i]] = { 'additional': true };
+	                            return errors;
+	                        }
+	                    }
+	                } else {
+	                    for (i = 0, len = props.length; i < len; i++) {
+	                        objerr = validate(env, schemaStack.concat(schema.additionalProperties), objectStack.concat([prop[props[i]]]), options);
+	                        if (objerr) {
+	                            errors[props[i]] = objerr;
+	                            return errors;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    /** items **/
+
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1],
+	        errors, i, len;
+
+	    if (Array.isArray(prop) && schema.hasOwnProperty('items')) {/*r-condition*/
+	        if (Array.isArray(schema.items)) {
+	            for (i = 0, len = schema.items.length; i < len; i++) {
+	                errors = validate(env, schemaStack.concat(schema.items[i]), objectStack.concat(prop[i]), options);
+	                if (errors) {
+	                    return errors;
+	                }
+	            }
+
+	            if (prop.length > len && schema.hasOwnProperty('additionalItems')) {
+	                if (typeof schema.additionalItems === 'boolean') {
+	                    if (!schema.additionalItems) {
+	                        return { 'additionalItems': true };
+	                    }
+	                } else {
+	                    errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        } else {
+	            errors = validate(env, schemaStack.concat(schema.items), objectStack.concat(prop), options);
+	            if (errors) {
+	                return errors;
+	            }
+	        }
+	    }
+
+	    /** additionalItems **/
+
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1];
+
+	    if (schema.additionalItems && Array.isArray(prop) && typeof schema.additionalItems !== 'boolean') {/*r-condition*/
+	        var errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	        if (errors) {
+	            return errors;
+	        }
+	    }
+	}
+
+/***/ },
+/* 24 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -3859,7 +4323,7 @@
 	};
 
 /***/ },
-/* 10 */
+/* 25 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -3872,7 +4336,7 @@
 	};
 
 /***/ },
-/* 11 */
+/* 26 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -3880,7 +4344,7 @@
 	};
 
 /***/ },
-/* 12 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -4106,90 +4570,76 @@
 	};
 
 /***/ },
-/* 13 */,
-/* 14 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function(env, schemaStack, objectStack, options) {
-		function validate(validatorName){
-			var error = __webpack_require__(15)("./" + validatorName)(env, schemaStack, objectStack, options);
-			return error || null;
-		}
+	var utils = __webpack_require__(4);
+	var validators = __webpack_require__(5);
+	var keywords = __webpack_require__(20);
+	var resolve = __webpack_require__(10);
 
-		for(var i = 0, arr = [
-			'type',
-	        'dependencies',
-	        'required',
-			'properties',
-			'items',
-			'additionalItems',
-			'property',
+	module.exports = function transform(env, schemaStack, objectStack, options){
+	    var object = { keys: '' };
 
-			'$ref',
-			'allOf',
-			'oneOf',
-			'anyOf',
-			'not'
-		], len = arr.length; i < len; i++) {
-			var error = validate(arr[i]);
-			if(error) {
-				return error;
-			}
-		}
-	};
+	    return validate(env, schemaStack[0], objectStack[0]);
+	}
 
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
+	function validate(env, schema, object) {
+	    if (schema.required ^ object.keys) {
+	        return -1;
+	    }
 
-	var map = {
-		"./$ref": 16,
-		"./$ref.js": 16,
-		"./additionalItems": 17,
-		"./additionalItems.js": 17,
-		"./allOf": 18,
-		"./allOf.js": 18,
-		"./anyOf": 19,
-		"./anyOf.js": 19,
-		"./dependencies": 20,
-		"./dependencies.js": 20,
-		"./items": 21,
-		"./items.js": 21,
-		"./not": 22,
-		"./not.js": 22,
-		"./oneOf": 23,
-		"./oneOf.js": 23,
-		"./properties": 24,
-		"./properties.js": 24,
-		"./property": 25,
-		"./property.js": 25,
-		"./required": 26,
-		"./required.js": 26,
-		"./type": 27,
-		"./type.js": 27
-	};
-	function webpackContext(req) {
-		return __webpack_require__(webpackContextResolve(req));
-	};
-	function webpackContextResolve(req) {
-		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
-	};
-	webpackContext.keys = function webpackContextKeys() {
-		return Object.keys(map);
-	};
-	webpackContext.resolve = webpackContextResolve;
-	module.exports = webpackContext;
-	webpackContext.id = 15;
+	    return;
 
+	    /** property **/
 
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
+	    var prop = objectStack[objectStack.length - 1],
+	        schema = schemaStack[schemaStack.length - 1],
+	        errors = {};
 
-	var validate = __webpack_require__(14);
-	var resolve = __webpack_require__(8);
+	    for (var v in schema) {
+	        if (schema.hasOwnProperty(v) && !keywords.hasOwnProperty(v)) {
+	            if (v === 'format') {
+	                if (env.fieldFormat.hasOwnProperty(schema[v]) && !env.fieldFormat[schema[v]](prop, schema, objectStack, options)) {
+	                    errors[v] = true;
+	                    return errors;
+	                }
+	            } else {
+	                var useSchemaStack = schema[v].hasOwnProperty('$data') ? utils.resolveObjectRef(objectStack, schema[v].$data) : schema[v];
 
-	module.exports = function $ref(env, schemaStack, objectStack, options) {
+	                if (env.fieldValidate.hasOwnProperty(v) && !env.fieldValidate[v](prop, useSchemaStack, schema, objectStack, options)) {
+	                    errors[v] = true;
+	                    return errors;
+	                }
+	            }
+	        }
+	    }
+
+	    /** type **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('type')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        if (typeof schema.type === 'string') {
+	            if (options.useCoerce && env.coerceType.hasOwnProperty(schema.type)) {
+	                prop = env.coerceType[schema.type](prop);
+	            }
+	            if (!env.fieldType[schema.type](prop)) {
+	                return { 'type': schema.type };
+	            }
+	        } else if (Array.isArray(schema.type)) {
+	            for (var i = 0, len = schema.type.length; i < len; i++) {
+	                if (env.fieldType[schema.type[i]](prop)) {
+	                    return;/*r-continue*/
+	                }
+	            }
+
+	            return { 'type': schema.type };
+	        }
+	    }
+
+	    /** $ref **/
+
 	    var schema = schemaStack[schemaStack.length - 1];
 	    if (schema.hasOwnProperty('$ref')) {/*r-condition*/
 	        var newSchemaStack = resolve(env, schemaStack, schema.$ref);
@@ -4202,53 +4652,22 @@
 	            return errors;
 	        }
 	    }
-	};
 
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
+	    /** not **/
 
-	var validate = __webpack_require__(14);
-
-	module.exports = function additionalItems(env, schemaStack, objectStack, options) {
-		var schema = schemaStack[schemaStack.length - 1],
-			prop = objectStack[objectStack.length - 1];
-
-		if (schema.additionalItems && Array.isArray(prop) && typeof schema.additionalItems === 'boolean') {/*r-condition*/
-	        var errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
-	        if (errors) {
-	            return errors;
-	        }
-	    }
-	};
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var validate = __webpack_require__(14);
-
-	module.exports = function allOf(env, schemaStack, objectStack, options) {
 	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('not')) {/*r-condition*/
+	        var customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional,
+	            newStack = customTypesUsage ? utils.clone(objectStack) : objectStack,
+	            errors = validate(env, schemaStack.concat(schema.not), newStack, options);
 
-	    if (schema.hasOwnProperty('allOf')) {/*r-condition*/
-	        for (var i = 0, len = schema.allOf.length; i < len; i++) {
-	            var errors = validate(env, schemaStack.concat(schema.allOf[i]), objectStack, options);
-	            if (errors) {
-	                return errors;
-	            }
+	        if (!errors) {
+	            return { 'not': true };
 	        }
 	    }
-	};
 
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
+	    /** anyOf **/
 
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
-
-	module.exports = function anyOf(env, schemaStack, objectStack, options) {
 	    var schema = schemaStack[schemaStack.length - 1];
 	    if (schema.hasOwnProperty('anyOf')) {/*r-condition*/
 	        var errors,
@@ -4270,106 +4689,9 @@
 	            return errors;
 	        }
 	    }
-	};
 
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
+	    /** oneOf **/
 
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
-
-	module.exports = function dependencies(env, schemaStack, objectStack, options) {
-	    var schema = schemaStack[schemaStack.length - 1];
-	    if (schema.hasOwnProperty('dependencies')) {/*r-condition*/
-	        var prop = objectStack[objectStack.length - 1];
-	        for (var p in schema.dependencies) {
-	            if (schema.dependencies.hasOwnProperty(p) && prop.hasOwnProperty(p)) {
-	                if (Array.isArray(schema.dependencies[p])) {
-	                    for (var i = 0, len = schema.dependencies[p].length; i < len; i++)
-	                        if (!prop.hasOwnProperty(schema.dependencies[p][i])) {
-	                            return { 'dependencies': true };
-	                        }
-	                } else {
-	                    var errors = validate(env, schemaStack.concat(schema.dependencies[p]), objectStack, options);
-	                    if (errors) {
-	                        return errors;
-	                    }
-	                }
-	            }
-	        }
-	    }
-	};
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var validate = __webpack_require__(14);
-
-	module.exports = function items(env, schemaStack, objectStack, options) {
-	    var schema = schemaStack[schemaStack.length - 1],
-	        prop = objectStack[objectStack.length - 1],
-	        errors, i, len;
-
-	    if (Array.isArray(prop) && schema.hasOwnProperty('items')) {/*r-condition*/
-	        if (Array.isArray(schema.items)) {
-	            for (i = 0, len = schema.items.length; i < len; i++) {
-	                errors = validate(env, schemaStack.concat(schema.items[i]), objectStack.concat(prop[i]), options);
-	                if (errors) {
-	                    return errors;
-	                }
-	            }
-
-	            if (prop.length > len && schema.hasOwnProperty('additionalItems')) {
-	                if (typeof schema.additionalItems === 'boolean') {
-	                    if (!schema.additionalItems) {
-	                        return { 'additionalItems': true };
-	                    }
-	                } else {
-	                    errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
-	                    if (errors) {
-	                        return errors;
-	                    }
-	                }
-	            }
-	        } else {
-	            errors = validate(env, schemaStack.concat(schema.items), objectStack.concat(prop), options);
-	            if (errors) {
-	                return errors;
-	            }
-	        }
-	    }
-	};
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
-
-	module.exports = function not(env, schemaStack, objectStack, options) {
-	    var schema = schemaStack[schemaStack.length - 1];
-	    if (schema.hasOwnProperty('not')) {/*r-condition*/
-	        var customTypesUsage = options.useCoerce || options.useDefault || options.removeAdditional,
-	            newStack = customTypesUsage ? utils.clone(objectStack) : objectStack,
-	            errors = validate(env, schemaStack.concat(schema.not), newStack, options);
-
-	        if (!errors) {
-	            return { 'not': true };
-	        }
-	    }
-	};
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
-
-	module.exports = function oneOf(env, schemaStack, objectStack, options) {
 	    var schema = schemaStack[schemaStack.length - 1];
 	    if (schema.hasOwnProperty('oneOf')) {/*r-condition*/
 	        var errors,
@@ -4397,16 +4719,44 @@
 	            return errors;
 	        }
 	    }
-	};
 
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
+	    /** allOf **/
 
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
+	    var schema = schemaStack[schemaStack.length - 1];
 
-	module.exports = function properties(env, schemaStack, objectStack, options) {
+	    if (schema.hasOwnProperty('allOf')) {/*r-condition*/
+	        for (var i = 0, len = schema.allOf.length; i < len; i++) {
+	            var errors = validate(env, schemaStack.concat(schema.allOf[i]), objectStack, options);
+	            if (errors) {
+	                return errors;
+	            }
+	        }
+	    }
+
+	    /** dependencies **/
+
+	    var schema = schemaStack[schemaStack.length - 1];
+	    if (schema.hasOwnProperty('dependencies')) {/*r-condition*/
+	        var prop = objectStack[objectStack.length - 1];
+	        for (var p in schema.dependencies) {
+	            if (schema.dependencies.hasOwnProperty(p) && prop.hasOwnProperty(p)) {
+	                if (Array.isArray(schema.dependencies[p])) {
+	                    for (var i = 0, len = schema.dependencies[p].length; i < len; i++)
+	                        if (!prop.hasOwnProperty(schema.dependencies[p][i])) {
+	                            return { 'dependencies': true };
+	                        }
+	                } else {
+	                    var errors = validate(env, schemaStack.concat(schema.dependencies[p]), objectStack, options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    /** properties **/
+
 	    var prop = objectStack[objectStack.length - 1],
 	        schema = schemaStack[schemaStack.length - 1],
 	        hasProp = schema.hasOwnProperty('properties'),
@@ -4474,113 +4824,60 @@
 	            }
 	        }
 	    }
-	};
 
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
+	    /** items **/
 
-	var keywords = __webpack_require__(7);
-	var validate = __webpack_require__(14);
-	var utils = __webpack_require__(4);
-
-	module.exports = function property(env, schemaStack, objectStack, options) {
-		var prop = objectStack[objectStack.length - 1],
-			schema = schemaStack[schemaStack.length - 1],
-			errors = {};
-
-		for (var v in schema) {
-			if (schema.hasOwnProperty(v) && !keywords.hasOwnProperty(v)) {
-				if (v === 'format') {
-					if (env.fieldFormat.hasOwnProperty(schema[v]) && !env.fieldFormat[schema[v]](prop, schema, objectStack, options)) {
-						errors[v] = true;
-						return errors;
-					}
-				} else {
-					var useSchemaStack = schema[v].hasOwnProperty('$data') ? utils.resolveObjectRef(objectStack, schema[v].$data) : schema[v];
-
-					if (env.fieldValidate.hasOwnProperty(v) && !env.fieldValidate[v](prop, useSchemaStack, schema, objectStack, options)) {
-						errors[v] = true;
-						return errors;
-					}
-				}
-			}
-		}
-	};
-
-/***/ },
-/* 26 */
-/***/ function(module, exports) {
-
-	module.exports = function required(env, schemaStack, objectStack, options) {
 	    var schema = schemaStack[schemaStack.length - 1],
-	        prop = objectStack[objectStack.length - 1];
+	        prop = objectStack[objectStack.length - 1],
+	        errors, i, len;
 
-	    if (options.checkRequired && schema.required && !Array.isArray(prop)) {/*r-condition*/
-	        for (var i = 0, len = schema.required.length; i < len; i++) {
-	            if (!prop.hasOwnProperty(schema.required[i])) {
-	                var errors = {};
-	                errors[schema.required[i]] = { 'required': true };
+	    if (Array.isArray(prop) && schema.hasOwnProperty('items')) {/*r-condition*/
+	        if (Array.isArray(schema.items)) {
+	            for (i = 0, len = schema.items.length; i < len; i++) {
+	                errors = validate(env, schemaStack.concat(schema.items[i]), objectStack.concat(prop[i]), options);
+	                if (errors) {
+	                    return errors;
+	                }
+	            }
+
+	            if (prop.length > len && schema.hasOwnProperty('additionalItems')) {
+	                if (typeof schema.additionalItems === 'boolean') {
+	                    if (!schema.additionalItems) {
+	                        return { 'additionalItems': true };
+	                    }
+	                } else {
+	                    errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	                    if (errors) {
+	                        return errors;
+	                    }
+	                }
+	            }
+	        } else {
+	            errors = validate(env, schemaStack.concat(schema.items), objectStack.concat(prop), options);
+	            if (errors) {
 	                return errors;
 	            }
 	        }
 	    }
 
-	};
+	    /** additionalItems **/
 
-/***/ },
-/* 27 */
-/***/ function(module, exports) {
+	    var schema = schemaStack[schemaStack.length - 1],
+	        prop = objectStack[objectStack.length - 1];
 
-	module.exports = function type(env, schemaStack, objectStack, options) {
-	    var schema = schemaStack[schemaStack.length - 1];
-	    if (schema.hasOwnProperty('type')) {/*r-condition*/
-	        var prop = objectStack[objectStack.length - 1];
-	        if (typeof schema.type === 'string') {
-	            if (options.useCoerce && env.coerceType.hasOwnProperty(schema.type)) {
-	                prop = env.coerceType[schema.type](prop);
-	            }
-	            if (!env.fieldType[schema.type](prop)) {
-	                return { 'type': schema.type };
-	            }
-	        } else if (Array.isArray(schema.type)) {
-	            for (var i = 0, len = schema.type.length; i < len; i++) {
-	                if (env.fieldType[schema.type[i]](prop)) {
-	                    return;/*r-continue*/
-	                }
-	            }
-
-	            return { 'type': schema.type };
+	    if (schema.additionalItems && Array.isArray(prop) && typeof schema.additionalItems !== 'boolean') {/*r-condition*/
+	        var errors = validate(env, schemaStack.concat(schema.additionalItems), objectStack.concat(prop), options);
+	        if (errors) {
+	            return errors;
 	        }
 	    }
-	};
+	}
 
 /***/ },
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
+/* 29 */
+/***/ function(module, exports) {
 
-	var map = {
-		"./validate": 14,
-		"./validate.build": 6,
-		"./validate.build.js": 6,
-		"./validate.js": 14
-	};
-	function webpackContext(req) {
-		return __webpack_require__(webpackContextResolve(req));
-	};
-	function webpackContextResolve(req) {
-		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
-	};
-	webpackContext.keys = function webpackContextKeys() {
-		return Object.keys(map);
-	};
-	webpackContext.resolve = webpackContextResolve;
-	module.exports = webpackContext;
-	webpackContext.id = 31;
-
+	1848
 
 /***/ }
 /******/ ]);
