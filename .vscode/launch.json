@@ -2,7 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch",
+			"name": "itest",
 			"type": "node",
 			"request": "launch",
 			"program": "./scripts/itest.js",
@@ -19,7 +19,7 @@
 			"outDir": null
 		},
         {
-			"name": "builded",
+			"name": "itest builded",
 			"type": "node",
 			"request": "launch",
 			"program": "./scripts/itest.js",
