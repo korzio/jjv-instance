@@ -7,36 +7,26 @@ var refs = {
     'http://json-schema.org/draft-04/schema': require('./../test/draft-04-schema.json')
 };
 
-var env = new jjv();
-// var test = require('/Users/alexanderko/Sites/schema/jjv-instance/node_modules/json-schema-benchmark/JSON-Schema-Test-Suite/tests/draft4/additionalItems.json').pop();
+
+var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/test/fixtures/allOf.json');
 
 // Object.keys(refs).forEach(function (uri) {
 // 	env.addSchema(uri, refs[uri]);
 // });
 
-var test = {
-        "description": "an array of schemas for items",
-        "schema": {
-            "properties": {
-                "foo": {"$ref": "#"}
-            },
-            "additionalProperties": false
-        },
-        "tests": [
-            {
-                "description": "correct types",
-                "data": [ 1, "foo" ],
-                "valid": true
-            }
-        ]
-    };
+suite.map(function(test){
+    var env = new jjv();
+    env.addSchema('test', test.schema);
 
-    // "items": [
-    //             {"type": "integer"},
-    //             {"$ref": "#/items/0"}
-    //         ]
 
-env.addSchema('test', test.schema);
+    try { env.validate('test', test.data) }
+    catch(e){ console.log('I dont know'); };
+    // if(test.valid == errors) {
+    //     console.log(suite.description);
+    //     console.log(test.description);
+    //     console.warn('wrong', errors);
+    // }
+});
 
-var errors = env.validate('test', test.tests[0].data);
-console.log('Done, ', errors);
+// var errors = env.validate('test', test.tests[0].data);
+// console.log('Done, ', errors);
