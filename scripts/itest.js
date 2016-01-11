@@ -1,4 +1,4 @@
-var jjv = require('./../lib/jjv');
+var jjv = require('./../lib/jjv.gen');
 var globalPath = './../node_modules/json-schema-test-suite';
 var refs = {
     'http://localhost:1234/integer.json': require(globalPath + '/remotes/integer.json'),
@@ -8,25 +8,24 @@ var refs = {
 };
 
 
-var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/test/fixtures/allOf.json');
-
-// Object.keys(refs).forEach(function (uri) {
-// 	env.addSchema(uri, refs[uri]);
-// });
+var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 
 suite.map(function(test){
     var env = new jjv();
+
+    Object.keys(refs).forEach(function (uri) {
+        env.addSchema(uri, refs[uri]);
+    });
+
     env.addSchema('test', test.schema);
+    test.tests.forEach(function(test){
+        var errors = env.validate('test', test.data);
 
-
-    try { env.validate('test', test.data) }
-    catch(e){ console.log('I dont know'); };
-    // if(test.valid == errors) {
-    //     console.log(suite.description);
-    //     console.log(test.description);
-    //     console.warn('wrong', errors);
-    // }
+        if(test.valid == errors) {
+            console.log(suite.description);
+            console.log(test.description);
+            console.log(JSON.stringify(test.schema, null, 4));
+            console.warn('wrong', errors);
+        }
+    });
 });
-
-// var errors = env.validate('test', test.tests[0].data);
-// console.log('Done, ', errors);
