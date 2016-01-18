@@ -29,3 +29,5 @@ suite.map(function(test){
         }
     });
 });
+
+console.info('done');
