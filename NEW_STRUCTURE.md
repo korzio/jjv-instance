@@ -16,12 +16,24 @@ What is generate-function? How to write very optimized functions?
 
 # What I did by steps
 
+## Goals
+
+- keep structure and code clean
+
+in is-my-json-schema-valid and jjv packages structure is - one file, and is hard to understand what is inside
+
+- add architecture ability to set instantiate and randomize data
+- fast validation
+- normal speed generation
+
 ## Refactoring jjv
 
 - splitted into files
 - updated variable names
 
 ## Refactoring for generated function
+
+investigate c++ inline functions
 
 - is-my-json-valid implementation
 - got a generated-function
@@ -57,6 +69,7 @@ What is generate-function? How to write very optimized functions?
 - Optimize small schemas (like in allOf example - don't generate function, althought return context)
 - add static generated functions posibility
 - Read ajv implementation
+- add tests to [resolve](http://tools.ietf.org/html/draft-zyp-json-schema-04#section-7.2.4)
 
 # References
 
