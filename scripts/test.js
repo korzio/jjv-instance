@@ -3,7 +3,7 @@ var assert = require('assert'),
     util = require('util'),
     testsuite = require('json-schema-test-suite');
 
-var jjv = require('./../lib/jjv');
+var jjv = require('./../lib/jjv.gen');
 var globalPath = './../node_modules/json-schema-test-suite';
 var refs = {
 	'http://localhost:1234/integer.json': require(globalPath + '/remotes/integer.json'),

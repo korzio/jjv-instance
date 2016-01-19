@@ -1,6 +1,23 @@
 {
 	"version": "0.2.0",
 	"configurations": [
+        {
+			"name": "benchmark",
+			"type": "node",
+			"request": "launch",
+			"program": "/Users/alexanderko/Sites/schema/jjv-instance/node_modules/json-schema-benchmark/index.js",
+			"stopOnEntry": false,
+			"args": [],
+			"cwd": ".",
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null
+		},
 		{
 			"name": "itest",
 			"type": "node",
