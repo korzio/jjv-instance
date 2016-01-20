@@ -10,165 +10,29 @@ var refs = {
 
 // var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
-    "description": "uniqueItems validation",
+    "description": "validation of URIs",
     "schema": {
-        "uniqueItems": true
+        "format": "uri"
     },
     "tests": [
         {
-            "description": "unique array of integers is valid",
-            "data": [
-                1,
-                2
-            ],
+            "description": "a valid URI",
+            "data": "http://foo.bar/?baz=qux#quux",
             "valid": true
         },
         {
-            "description": "non-unique array of integers is invalid",
-            "data": [
-                1,
-                1
-            ],
+            "description": "a valid protocol-relative URI",
+            "data": "//foo.bar/?baz=qux#quux",
+            "valid": true
+        },
+        {
+            "description": "an invalid URI",
+            "data": "\\\\WINDOWS\\fileshare",
             "valid": false
         },
         {
-            "description": "numbers are unique if mathematically unequal",
-            "data": [
-                1,
-                1,
-                1
-            ],
-            "valid": false
-        },
-        {
-            "description": "unique array of objects is valid",
-            "data": [
-                {
-                    "foo": "bar"
-                },
-                {
-                    "foo": "baz"
-                }
-            ],
-            "valid": true
-        },
-        {
-            "description": "non-unique array of objects is invalid",
-            "data": [
-                {
-                    "foo": "bar"
-                },
-                {
-                    "foo": "bar"
-                }
-            ],
-            "valid": false
-        },
-        {
-            "description": "unique array of nested objects is valid",
-            "data": [
-                {
-                    "foo": {
-                        "bar": {
-                            "baz": true
-                        }
-                    }
-                },
-                {
-                    "foo": {
-                        "bar": {
-                            "baz": false
-                        }
-                    }
-                }
-            ],
-            "valid": true
-        },
-        {
-            "description": "non-unique array of nested objects is invalid",
-            "data": [
-                {
-                    "foo": {
-                        "bar": {
-                            "baz": true
-                        }
-                    }
-                },
-                {
-                    "foo": {
-                        "bar": {
-                            "baz": true
-                        }
-                    }
-                }
-            ],
-            "valid": false
-        },
-        {
-            "description": "unique array of arrays is valid",
-            "data": [
-                [
-                    "foo"
-                ],
-                [
-                    "bar"
-                ]
-            ],
-            "valid": true
-        },
-        {
-            "description": "non-unique array of arrays is invalid",
-            "data": [
-                [
-                    "foo"
-                ],
-                [
-                    "foo"
-                ]
-            ],
-            "valid": false
-        },
-        {
-            "description": "1 and true are unique",
-            "data": [
-                1,
-                true
-            ],
-            "valid": true
-        },
-        {
-            "description": "0 and false are unique",
-            "data": [
-                0,
-                false
-            ],
-            "valid": true
-        },
-        {
-            "description": "unique heterogeneous types are valid",
-            "data": [
-                {},
-                [
-                    1
-                ],
-                true,
-                null,
-                1
-            ],
-            "valid": true
-        },
-        {
-            "description": "non-unique heterogeneous types are invalid",
-            "data": [
-                {},
-                [
-                    1
-                ],
-                true,
-                null,
-                {},
-                1
-            ],
+            "description": "an invalid URI though valid URI reference",
+            "data": "abc",
             "valid": false
         }
     ]
@@ -189,7 +53,8 @@ suite.map(function (testSuite) {
         if (test.valid !== status.valid) {
             console.log(testSuite.description);
             console.log(test.description);
-            console.log(JSON.stringify(test.schema, null, 4));
+            console.log(JSON.stringify(testSuite.schema, null, 4));
+            console.log(test.data);
             console.warn('wrong', errors);
         }
     });

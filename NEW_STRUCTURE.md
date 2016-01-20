@@ -42,9 +42,10 @@ investigate c++ inline functions
 # TODO
 
 - resolve
+- use strict
 - update ref usage for non-ref inline functions - if a linke does not contain refs inside (can be easily checked by json.stringify), it should be a regular if-else consequence as well
 - override fieldType
-- todo i,property foreach
+- todo i,property foreach, vars!
 - compile/optimize json schema structure itself
 - add 'assert' fn
 - remove clone
