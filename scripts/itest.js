@@ -10,33 +10,18 @@ var refs = {
 
 // var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
-    "description": "validation of URIs",
-    "schema": {
-        "format": "uri"
-    },
-    "tests": [
-        {
-            "description": "a valid URI",
-            "data": "http://foo.bar/?baz=qux#quux",
-            "valid": true
+        "description": "validation of IP addresses",
+        "schema": {
+            "format": "ipv4"
         },
-        {
-            "description": "a valid protocol-relative URI",
-            "data": "//foo.bar/?baz=qux#quux",
-            "valid": true
-        },
-        {
-            "description": "an invalid URI",
-            "data": "\\\\WINDOWS\\fileshare",
-            "valid": false
-        },
-        {
-            "description": "an invalid URI though valid URI reference",
-            "data": "abc",
-            "valid": false
-        }
-    ]
-}];
+        "tests": [
+            {
+                "description": "an IP address with out-of-range values",
+                "data": "256.256.256.256",
+                "valid": false
+            }
+        ]
+    }];
 
 suite.map(function (testSuite) {
     var env = new jjv();
