@@ -10,18 +10,46 @@ var refs = {
 
 // var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
-        "description": "validation of IP addresses",
-        "schema": {
-            "format": "ipv4"
-        },
-        "tests": [
+    "description": "allOf",
+    "schema": {
+        "allOf": [
             {
-                "description": "an IP address with out-of-range values",
-                "data": "256.256.256.256",
-                "valid": false
+                "properties": {
+                    "bar": { "type": "integer" }
+                },
+                "required": ["bar"]
+            },
+            {
+                "properties": {
+                    "foo": { "type": "string" }
+                },
+                "required": ["foo"]
             }
         ]
-    }];
+    },
+    "tests": [
+        {
+            "description": "allOf",
+            "data": { "foo": "baz", "bar": 2 },
+            "valid": true
+        },
+        {
+            "description": "mismatch second",
+            "data": { "foo": "baz" },
+            "valid": false
+        },
+        {
+            "description": "mismatch first",
+            "data": { "bar": 2 },
+            "valid": false
+        },
+        {
+            "description": "wrong type",
+            "data": { "foo": "baz", "bar": "quux" },
+            "valid": false
+        }
+    ]
+}];
 
 suite.map(function (testSuite) {
     var env = new jjv();
@@ -38,8 +66,8 @@ suite.map(function (testSuite) {
         if (test.valid !== status.valid) {
             console.log(testSuite.description);
             console.log(test.description);
-            console.log(JSON.stringify(testSuite.schema, null, 4));
-            console.log(test.data);
+            console.log('schema', JSON.stringify(testSuite.schema, null, 4));
+            console.log('data', test.data);
             console.warn('wrong', errors);
         }
     });
