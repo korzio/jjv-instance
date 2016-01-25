@@ -10,42 +10,36 @@ var refs = {
 
 // var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
-    "description": "allOf",
+    "description": "anyOf",
     "schema": {
-        "allOf": [
+        "anyOf": [
             {
-                "properties": {
-                    "bar": { "type": "integer" }
-                },
-                "required": ["bar"]
+                "type": "integer"
             },
             {
-                "properties": {
-                    "foo": { "type": "string" }
-                },
-                "required": ["foo"]
+                "minimum": 2
             }
         ]
     },
     "tests": [
         {
-            "description": "allOf",
-            "data": { "foo": "baz", "bar": 2 },
+            "description": "first anyOf valid",
+            "data": 1,
             "valid": true
         },
         {
-            "description": "mismatch second",
-            "data": { "foo": "baz" },
-            "valid": false
+            "description": "second anyOf valid",
+            "data": 2.5,
+            "valid": true
         },
         {
-            "description": "mismatch first",
-            "data": { "bar": 2 },
-            "valid": false
+            "description": "both anyOf valid",
+            "data": 3,
+            "valid": true
         },
         {
-            "description": "wrong type",
-            "data": { "foo": "baz", "bar": "quux" },
+            "description": "neither anyOf valid",
+            "data": 1.5,
             "valid": false
         }
     ]
