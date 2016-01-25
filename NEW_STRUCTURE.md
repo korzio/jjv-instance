@@ -41,7 +41,7 @@ investigate c++ inline functions
 
 # TODO
 
-- resolve
+- resolve override ('changed scope ref valid' test)
 - use strict
 - update ref usage for non-ref inline functions - if a linke does not contain refs inside (can be easily checked by json.stringify), it should be a regular if-else consequence as well
 - override fieldType
