@@ -10,37 +10,25 @@ var refs = {
 
 // var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
-    "description": "anyOf",
+    "description": "change resolution scope",
     "schema": {
-        "anyOf": [
-            {
-                "type": "integer"
-            },
-            {
-                "minimum": 2
+        "id": "http://localhost:1234/",
+        "items": {
+            "id": "folder/",
+            "items": {
+                "$ref": "folderInteger.json"
             }
-        ]
+        }
     },
     "tests": [
         {
-            "description": "first anyOf valid",
-            "data": 1,
+            "description": "changed scope ref valid",
+            "data": [
+                [
+                    1
+                ]
+            ],
             "valid": true
-        },
-        {
-            "description": "second anyOf valid",
-            "data": 2.5,
-            "valid": true
-        },
-        {
-            "description": "both anyOf valid",
-            "data": 3,
-            "valid": true
-        },
-        {
-            "description": "neither anyOf valid",
-            "data": 1.5,
-            "valid": false
         }
     ]
 }];
@@ -48,9 +36,9 @@ var suite = [{
 suite.map(function (testSuite) {
     var env = new jjv();
 
-    // Object.keys(refs).forEach(function (uri) {
-    //     env.addSchema(uri, refs[uri]);
-    // });
+    Object.keys(refs).forEach(function (uri) {
+        env.addSchema(uri, refs[uri]);
+    });
 
     env.addSchema('test', testSuite.schema);
     testSuite.tests.forEach(function (test) {
