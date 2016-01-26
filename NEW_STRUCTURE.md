@@ -1,3 +1,9 @@
+# Why use json-schema
+
+- Instantiate
+- Validate
+- Randomize
+
 # What relative tasks can be?
 
 - Instantiate
@@ -38,6 +44,17 @@ investigate c++ inline functions
 - is-my-json-valid implementation
 - got a generated-function
 - updated generated function with few methods - resolve, error, etc, cache - Maybe it is better to use some meta language for it?
+
+## Optimized things
+
+- Added Measured
+- Describe All measurements
+
+### Todo Optimizations List
+
+- generatedNonRefFunctions 1377, generatedFunctionsUsed 3003
+- { count: 361, key: 'if (Array.isArray($1) && $1.some(function(item, key) {            key = JSON.stringify(item);            if(i1.hasOwnProperty(key))            return true;            i1[key] = true;        }))' }, // http://jsperf.com/array-some-vs-loop/5
+- { count: 181, key: 'if (!/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/.test(%s))' }
 
 # TODO
 

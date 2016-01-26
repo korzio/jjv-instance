@@ -1716,19 +1716,6 @@
         ]
     },
     {
-        "description": "some languages do not distinguish between different types of numeric value",
-        "schema": {
-            "type": "integer"
-        },
-        "tests": [
-            {
-                "description": "a float is not an integer even without fractional part",
-                "data": 1,
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "pattern validation",
         "schema": {
             "pattern": "^a*$"
@@ -2331,38 +2318,6 @@
             {
                 "description": "ref within ref invalid",
                 "data": "a",
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "change resolution scope",
-        "schema": {
-            "id": "http://localhost:1234/",
-            "items": {
-                "id": "folder/",
-                "items": {
-                    "$ref": "folderInteger.json"
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "changed scope ref valid",
-                "data": [
-                    [
-                        1
-                    ]
-                ],
-                "valid": true
-            },
-            {
-                "description": "changed scope ref invalid",
-                "data": [
-                    [
-                        "a"
-                    ]
-                ],
                 "valid": false
             }
         ]
