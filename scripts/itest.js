@@ -8,7 +8,7 @@ var refs = {
 };
 
 var measure = require('./measured');
-// var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
+var suite = require('/Users/alexanderko/Sites/schema/jjv-instance/scripts/tests.json');
 var suite = [{
     "description": "anyOf",
     "schema": {

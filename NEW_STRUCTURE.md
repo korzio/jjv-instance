@@ -50,6 +50,12 @@ investigate c++ inline functions
 - Added Measured
 - Describe All measurements
 
+## Google Closure Advanced
+
+- features
+- what is used
+- why still need optimizations
+
 ### Todo Optimizations List
 
 - generatedNonRefFunctions 1377, generatedFunctionsUsed 3003 - make fn.if function, and transport scope/context/state to generate function
@@ -60,6 +66,7 @@ investigate c++ inline functions
 
 - resolve override ('changed scope ref valid' test)
 - use strict
+- [if optimization](http://jsperf.com/ifs-vs-expression)?
 - variables names with quotes, aka properties '%%%%' will throw error
 - update ref usage for non-ref inline functions - if a linke does not contain refs inside (can be easily checked by json.stringify), it should be a regular if-else consequence as well
 - override fieldType
@@ -83,7 +90,7 @@ investigate c++ inline functions
 - extreme values
 - http://habrahabr.ru/company/mailru/blog/273839/
 - docs
-- compile with google closure or smth
+- [compile with google closure or smth](https://www.npmjs.com/package/google-closure-compiler)
 - // TODO $data
 - Optimize small schemas (like in allOf example - don't generate function, althought return context)
 - add static generated functions posibility
