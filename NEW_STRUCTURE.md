@@ -52,7 +52,7 @@ investigate c++ inline functions
 
 ### Todo Optimizations List
 
-- generatedNonRefFunctions 1377, generatedFunctionsUsed 3003
+- generatedNonRefFunctions 1377, generatedFunctionsUsed 3003 - make fn.if function, and transport scope/context/state to generate function
 - { count: 361, key: 'if (Array.isArray($1) && $1.some(function(item, key) {            key = JSON.stringify(item);            if(i1.hasOwnProperty(key))            return true;            i1[key] = true;        }))' }, // http://jsperf.com/array-some-vs-loop/5
 - { count: 181, key: 'if (!/[-a-zA-Z0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&//=]*)?/.test(%s))' }
 
@@ -60,6 +60,7 @@ investigate c++ inline functions
 
 - resolve override ('changed scope ref valid' test)
 - use strict
+- variables names with quotes, aka properties '%%%%' will throw error
 - update ref usage for non-ref inline functions - if a linke does not contain refs inside (can be easily checked by json.stringify), it should be a regular if-else consequence as well
 - override fieldType
 - todo i,property foreach, vars!
